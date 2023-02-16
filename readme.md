@@ -79,10 +79,10 @@ If you wish to fork or modify the code, visit the [GitHub project page][scm], wh
 
 The project has been released under the [MIT License][license].
 
-[issues]: https://github.com/bernardo-mg/netty-tcp-server/issues
-[javadoc-develop]: https://docs.bernardomg.com/development/maven/netty-tcp-server/apidocs
-[javadoc-release]: https://docs.bernardomg.com/maven/netty-tcp-server/apidocs
+[issues]: https://github.com/bernardo-mg/reactor-netty-tcp-server/issues
+[javadoc-develop]: https://docs.bernardomg.com/development/maven/reactor-netty-tcp-server/apidocs
+[javadoc-release]: https://docs.bernardomg.com/maven/reactor-netty-tcp-server/apidocs
 [license]: https://www.opensource.org/licenses/mit-license.php
-[scm]: https://github.com/bernardo-mg/netty-tcp-server
-[site-develop]: https://docs.bernardomg.com/development/maven/netty-tcp-server
-[site-release]: https://docs.bernardomg.com/maven/netty-tcp-server
+[scm]: https://github.com/bernardo-mg/reactor-netty-tcp-server
+[site-develop]: https://docs.bernardomg.com/development/maven/reactor-netty-tcp-server
+[site-release]: https://docs.bernardomg.com/maven/reactor-netty-tcp-server
