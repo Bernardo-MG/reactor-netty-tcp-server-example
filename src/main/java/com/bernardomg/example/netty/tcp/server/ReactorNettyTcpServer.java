@@ -45,6 +45,9 @@ import reactor.netty.tcp.TcpServer;
 @Slf4j
 public final class ReactorNettyTcpServer implements Server {
 
+    /**
+     * Server listener. Extension hook which allows reacting to the server events.
+     */
     private final ServerListener listener;
 
     /**
@@ -74,7 +77,9 @@ public final class ReactorNettyTcpServer implements Server {
         listener.onStart();
 
         server = TcpServer.create()
-            .handle(this::showContext)
+            // Adds request handler
+            .handle(this::handleRequest)
+            // Binds to port
             .port(port)
             .bindNow();
 
@@ -99,15 +104,29 @@ public final class ReactorNettyTcpServer implements Server {
         log.error(ex.getLocalizedMessage(), ex);
     }
 
-    private final Publisher<Void> sendResponse(final NettyInbound req, final NettyOutbound resp) {
-        return resp.sendString(Mono.just(response));
-    }
+    /**
+     * Request event internal listener. Will receive any request sent by the client.
+     * <p>
+     * Will send the context info to the listener and send a response to the client.
+     *
+     * @param req
+     *            request flux
+     * @param resp
+     *            response flux
+     * @return a publisher which handles the request
+     */
+    private final Publisher<Void> handleRequest(final NettyInbound req, final NettyOutbound resp) {
+        final Publisher<Void> listenerPublisher;
 
-    private final Publisher<Void> showContext(final NettyInbound req, final NettyOutbound resp) {
-        return resp.sendString(Mono.just(response)).then(req.receive()
+        // Publisher which sends the request to the listener
+        listenerPublisher = req.receive()
             .doOnNext(next -> listener.onTransaction(next.toString(CharsetUtil.UTF_8), response, true))
             .doOnError(this::handleError)
-            .then());
+            .then();
+
+        // Sends the response
+        return resp.sendString(Mono.just(response))
+            .then(listenerPublisher);
     }
 
 }
