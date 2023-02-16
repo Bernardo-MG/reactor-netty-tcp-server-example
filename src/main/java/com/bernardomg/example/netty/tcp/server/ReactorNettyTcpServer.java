@@ -51,14 +51,14 @@ public final class ReactorNettyTcpServer implements Server {
     private final ServerListener listener;
 
     /**
-     * Port which the server will listen to.
-     */
-    private final Integer        port;
-
-    /**
      * Response to send after a request.
      */
     private final String         messageForClient;
+
+    /**
+     * Port which the server will listen to.
+     */
+    private final Integer        port;
 
     private DisposableServer     server;
 
