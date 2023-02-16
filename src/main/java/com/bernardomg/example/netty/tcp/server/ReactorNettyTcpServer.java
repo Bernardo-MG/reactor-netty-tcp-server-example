@@ -51,14 +51,14 @@ public final class ReactorNettyTcpServer implements Server {
     private final ServerListener listener;
 
     /**
-     * Port which the server will listen to.
-     */
-    private final Integer        port;
-
-    /**
      * Response to send after a request.
      */
     private final String         messageForClient;
+
+    /**
+     * Port which the server will listen to.
+     */
+    private final Integer        port;
 
     private DisposableServer     server;
 
@@ -117,6 +117,8 @@ public final class ReactorNettyTcpServer implements Server {
      */
     private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
         final Publisher<Void> reqPublisher;
+
+        log.debug("Setting up request handler");
 
         // Publisher which sends the request to the listener
         reqPublisher = request.receive()
