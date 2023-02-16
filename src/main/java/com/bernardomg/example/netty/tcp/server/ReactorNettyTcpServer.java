@@ -24,11 +24,11 @@
 
 package com.bernardomg.example.netty.tcp.server;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import org.reactivestreams.Publisher;
 
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.netty.DisposableServer;
@@ -74,8 +74,8 @@ public final class ReactorNettyTcpServer implements Server {
         listener.onStart();
 
         server = TcpServer.create()
+            .handle(this::showContext)
             .port(port)
-            .handle(this::handleRequest)
             .bindNow();
 
         server.onDispose()
@@ -95,16 +95,19 @@ public final class ReactorNettyTcpServer implements Server {
         log.trace("Stopped server");
     }
 
-    private final Publisher<Void> handleRequest(final NettyInbound req, final NettyOutbound resp) {
-        // listener.onTransaction(msg, response, true);
-        req.receive()
-            .aggregate()
-            .asByteArray()
-            .doOnNext(bytes -> {
-                System.out.println(new String(bytes, StandardCharsets.UTF_8));
-            })
-            .flatMap(Mono::just);
+    private final void handleError(final Throwable ex) {
+        log.error(ex.getLocalizedMessage(), ex);
+    }
+
+    private final Publisher<Void> sendResponse(final NettyInbound req, final NettyOutbound resp) {
         return resp.sendString(Mono.just(response));
+    }
+
+    private final Publisher<Void> showContext(final NettyInbound req, final NettyOutbound resp) {
+        return resp.sendString(Mono.just(response)).then(req.receive()
+            .doOnNext(next -> listener.onTransaction(next.toString(CharsetUtil.UTF_8), response, true))
+            .doOnError(this::handleError)
+            .then());
     }
 
 }
