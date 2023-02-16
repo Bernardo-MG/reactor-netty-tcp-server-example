@@ -29,7 +29,7 @@ import java.io.PrintWriter;
 
 import com.bernardomg.example.netty.tcp.cli.CliWriterClientListener;
 import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
-import com.bernardomg.example.netty.tcp.server.NettyTcpServer;
+import com.bernardomg.example.netty.tcp.server.ReactorNettyTcpServer;
 import com.bernardomg.example.netty.tcp.server.Server;
 import com.bernardomg.example.netty.tcp.server.ServerListener;
 
@@ -91,7 +91,7 @@ public final class StartServerCommand implements Runnable {
         }
 
         listener = new CliWriterClientListener(port, writer);
-        server = new NettyTcpServer(port, response, listener);
+        server = new ReactorNettyTcpServer(port, response, listener);
 
         server.start();
     }
