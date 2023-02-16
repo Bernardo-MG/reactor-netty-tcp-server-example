@@ -58,7 +58,7 @@ public final class ReactorNettyTcpServer implements Server {
     /**
      * Response to send after a request.
      */
-    private final String         response;
+    private final String         messageForClient;
 
     private DisposableServer     server;
 
@@ -66,7 +66,7 @@ public final class ReactorNettyTcpServer implements Server {
         super();
 
         port = Objects.requireNonNull(prt);
-        response = Objects.requireNonNull(resp);
+        messageForClient = Objects.requireNonNull(resp);
         listener = Objects.requireNonNull(lst);
     }
 
@@ -109,24 +109,24 @@ public final class ReactorNettyTcpServer implements Server {
      * <p>
      * Will send the context info to the listener and send a response to the client.
      *
-     * @param req
+     * @param request
      *            request flux
-     * @param resp
+     * @param response
      *            response flux
      * @return a publisher which handles the request
      */
-    private final Publisher<Void> handleRequest(final NettyInbound req, final NettyOutbound resp) {
-        final Publisher<Void> listenerPublisher;
+    private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
+        final Publisher<Void> reqPublisher;
 
         // Publisher which sends the request to the listener
-        listenerPublisher = req.receive()
-            .doOnNext(next -> listener.onTransaction(next.toString(CharsetUtil.UTF_8), response, true))
+        reqPublisher = request.receive()
+            .doOnNext(next -> listener.onTransaction(next.toString(CharsetUtil.UTF_8), messageForClient, true))
             .doOnError(this::handleError)
             .then();
 
         // Sends the response
-        return resp.sendString(Mono.just(response))
-            .then(listenerPublisher);
+        return response.sendString(Mono.just(messageForClient))
+            .then(reqPublisher);
     }
 
 }
