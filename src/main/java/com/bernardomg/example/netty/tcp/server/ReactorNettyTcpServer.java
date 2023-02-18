@@ -118,6 +118,8 @@ public final class ReactorNettyTcpServer implements Server {
     private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
         final Publisher<Void> reqPublisher;
 
+        log.debug("Setting up request handler");
+
         // Publisher which sends the request to the listener
         reqPublisher = request.receive()
             .doOnNext(next -> listener.onTransaction(next.toString(CharsetUtil.UTF_8), messageForClient, true))
