@@ -35,8 +35,8 @@ import picocli.CommandLine.Command;
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
-@Command(description = "Reactor TCP server", subcommands = { StartServerCommand.class }, mixinStandardHelpOptions = true,
-        versionProvider = ManifestVersionProvider.class)
+@Command(description = "Reactor TCP server", subcommands = { StartServerCommand.class },
+        mixinStandardHelpOptions = true, versionProvider = ManifestVersionProvider.class)
 public class TcpServerMenu {
 
     /**
