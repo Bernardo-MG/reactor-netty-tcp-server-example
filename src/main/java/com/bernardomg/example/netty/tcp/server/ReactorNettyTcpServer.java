@@ -110,9 +110,9 @@ public final class ReactorNettyTcpServer implements Server {
      * Will send the context info to the listener and send a response to the client.
      *
      * @param request
-     *            request flux
+     *            request channel
      * @param response
-     *            response flux
+     *            response channel
      * @return a publisher which handles the request
      */
     private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
