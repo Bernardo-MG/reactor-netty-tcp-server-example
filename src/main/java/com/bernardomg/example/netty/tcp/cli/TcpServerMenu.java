@@ -30,7 +30,7 @@ import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import picocli.CommandLine.Command;
 
 /**
- * Dice roller menu.
+ * TCP server menu.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
