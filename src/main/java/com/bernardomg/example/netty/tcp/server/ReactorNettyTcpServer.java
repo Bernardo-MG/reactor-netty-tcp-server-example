@@ -39,7 +39,7 @@ import reactor.netty.tcp.TcpServer;
 /**
  * Netty based TCP server.
  *
- * @author bernardo.martinezg
+ * @author Bernardo Mart&iacute;nez Garrido
  *
  */
 @Slf4j
@@ -100,14 +100,20 @@ public final class ReactorNettyTcpServer implements Server {
         log.trace("Stopped server");
     }
 
+    /**
+     * Error handler which sends errors to the log.
+     *
+     * @param ex
+     *            exception to log
+     */
     private final void handleError(final Throwable ex) {
         log.error(ex.getLocalizedMessage(), ex);
     }
 
     /**
-     * Request event internal listener. Will receive any request sent by the client.
+     * Request event listener. Will receive any request sent by the client, and then send back the response.
      * <p>
-     * Will send the context info to the listener and send a response to the client.
+     * Aditionally it will send the data from both the request and response to the listener.
      *
      * @param request
      *            request channel
@@ -116,30 +122,33 @@ public final class ReactorNettyTcpServer implements Server {
      * @return a publisher which handles the request
      */
     private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
-        final Publisher<Void>             reqPublisher;
-
         log.debug("Setting up request handler");
 
-        // Publisher which sends the request to the listener
-        reqPublisher = request.receive()
+        // Receives the request and then sends a response
+        return request.receive()
+            // Handle request
             .doOnNext(next -> {
-                final String message;
+                final String                  message;
                 final Publisher<? extends String> dataStream;
 
+                // Sends the request to the listener
                 message = next.toString(CharsetUtil.UTF_8);
                 listener.onReceive(message);
 
+                // Response data
                 dataStream = Mono.just(messageForClient)
                     .flux()
+                    // Will send the response to the listener
                     .doOnNext(s -> listener.onSend(s));
-                
-                response.sendString(dataStream).then().subscribe().dispose();
+
+                // Send response
+                response.sendString(dataStream)
+                    .then()
+                    .subscribe()
+                    .dispose();
             })
             .doOnError(this::handleError)
             .then();
-
-        // Sends the response
-        return reqPublisher;
     }
 
 }

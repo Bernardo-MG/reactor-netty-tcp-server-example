@@ -27,7 +27,7 @@ package com.bernardomg.example.netty.tcp.server;
 /**
  * Generic server. Supports starting and stopping it.
  *
- * @author bernardo.martinezg
+ * @author Bernardo Mart&iacute;nez Garrido
  *
  */
 public interface Server {
