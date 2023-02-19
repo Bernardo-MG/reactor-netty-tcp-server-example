@@ -55,36 +55,34 @@ public final class CliWriterClientListener implements ServerListener {
     }
 
     @Override
+    public final void onReceive(final String response) {
+        if (response.isEmpty()) {
+            writer.println("Received no message");
+        } else {
+            writer.printf("Received message: %s", response);
+            writer.println();
+        }
+    }
+
+    @Override
+    public final void onSend(final String request) {
+        if (request.isEmpty()) {
+            writer.println("Sent no message");
+        } else {
+            writer.printf("Sent message: %s", request);
+            writer.println();
+        }
+    }
+
+    @Override
     public final void onStart() {
-        writer.println();
-        writer.println("------------");
         writer.printf("Starting server and listening to port %d", port);
         writer.println();
-        writer.println("------------");
     }
 
     @Override
     public final void onStop() {
-        writer.println();
-        writer.println("------------");
         writer.println("Stopping server");
-        writer.println("------------");
-    }
-
-    @Override
-    public final void onTransaction(final String request, final String response, final Boolean success) {
-        // Write context to console
-        writer.println();
-        writer.printf("Received message: %s", request);
-        writer.println();
-        writer.printf("Sending response: %s", response);
-        writer.println();
-
-        if (success) {
-            writer.println("Successful response");
-        } else {
-            writer.println("Failed response");
-        }
     }
 
 }

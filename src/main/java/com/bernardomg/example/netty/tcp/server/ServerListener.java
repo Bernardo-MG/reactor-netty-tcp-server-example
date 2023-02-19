@@ -33,6 +33,22 @@ package com.bernardomg.example.netty.tcp.server;
 public interface ServerListener {
 
     /**
+     * Reacts to the client receiving a response.
+     *
+     * @param response
+     *            response received
+     */
+    public void onReceive(final String response);
+
+    /**
+     * Reacts to the client sending a request.
+     *
+     * @param request
+     *            request sent
+     */
+    public void onSend(final String request);
+
+    /**
      * Reacts to the server starting;
      */
     public void onStart();
@@ -41,17 +57,5 @@ public interface ServerListener {
      * Reacts to the server stopping;
      */
     public void onStop();
-
-    /**
-     * Reacts to the server finishing a transaction.
-     *
-     * @param request
-     *            client request
-     * @param response
-     *            server response
-     * @param success
-     *            success status
-     */
-    public void onTransaction(final String request, final String response, final Boolean success);
 
 }
