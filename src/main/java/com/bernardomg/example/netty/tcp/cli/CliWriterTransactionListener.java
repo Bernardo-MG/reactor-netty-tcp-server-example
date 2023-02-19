@@ -27,7 +27,7 @@ package com.bernardomg.example.netty.tcp.cli;
 import java.io.PrintWriter;
 import java.util.Objects;
 
-import com.bernardomg.example.netty.tcp.server.ServerListener;
+import com.bernardomg.example.netty.tcp.server.TransactionListener;
 
 /**
  * Server listener which will write the context of each step into the CLI console.
@@ -35,7 +35,7 @@ import com.bernardomg.example.netty.tcp.server.ServerListener;
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
-public final class CliWriterClientListener implements ServerListener {
+public final class CliWriterTransactionListener implements TransactionListener {
 
     /**
      * Port which the server will listen to.
@@ -47,7 +47,7 @@ public final class CliWriterClientListener implements ServerListener {
      */
     private final PrintWriter writer;
 
-    public CliWriterClientListener(final Integer prt, final PrintWriter writ) {
+    public CliWriterTransactionListener(final Integer prt, final PrintWriter writ) {
         super();
 
         port = Objects.requireNonNull(prt);
@@ -55,21 +55,21 @@ public final class CliWriterClientListener implements ServerListener {
     }
 
     @Override
-    public final void onReceive(final String response) {
-        if (response.isEmpty()) {
+    public final void onReceive(final String message) {
+        if (message.isEmpty()) {
             writer.println("Received no message");
         } else {
-            writer.printf("Received message: %s", response);
+            writer.printf("Received message: %s", message);
             writer.println();
         }
     }
 
     @Override
-    public final void onSend(final String request) {
-        if (request.isEmpty()) {
+    public final void onSend(final String message) {
+        if (message.isEmpty()) {
             writer.println("Sent no message");
         } else {
-            writer.printf("Sent message: %s", request);
+            writer.printf("Sent message: %s", message);
             writer.println();
         }
     }

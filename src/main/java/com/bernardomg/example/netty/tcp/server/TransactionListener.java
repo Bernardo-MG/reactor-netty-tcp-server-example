@@ -25,36 +25,36 @@
 package com.bernardomg.example.netty.tcp.server;
 
 /**
- * Server listener. Allows reacting to events related to the server.
+ * Transaction listener. Allows reacting to the events of a message transaction.
  *
  * @author Bernardo
  *
  */
-public interface ServerListener {
+public interface TransactionListener {
 
     /**
-     * Reacts to the client receiving a response.
+     * Reacts to a message being received.
      *
-     * @param response
-     *            response received
+     * @param message
+     *            message received
      */
-    public void onReceive(final String response);
+    public void onReceive(final String message);
 
     /**
-     * Reacts to the client sending a request.
+     * Reacts to a message being sent.
      *
-     * @param request
-     *            request sent
+     * @param message
+     *            message sent
      */
-    public void onSend(final String request);
+    public void onSend(final String message);
 
     /**
-     * Reacts to the server starting;
+     * Reacts to the start event.
      */
     public void onStart();
 
     /**
-     * Reacts to the server stopping;
+     * Reacts to the stop event.
      */
     public void onStop();
 

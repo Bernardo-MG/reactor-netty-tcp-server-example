@@ -48,21 +48,21 @@ public final class ReactorNettyTcpServer implements Server {
     /**
      * Server listener. Extension hook which allows reacting to the server events.
      */
-    private final ServerListener listener;
+    private final TransactionListener listener;
 
     /**
      * Response to send after a request.
      */
-    private final String         messageForClient;
+    private final String              messageForClient;
 
     /**
      * Port which the server will listen to.
      */
-    private final Integer        port;
+    private final Integer             port;
 
-    private DisposableServer     server;
+    private DisposableServer          server;
 
-    public ReactorNettyTcpServer(final Integer prt, final String resp, final ServerListener lst) {
+    public ReactorNettyTcpServer(final Integer prt, final String resp, final TransactionListener lst) {
         super();
 
         port = Objects.requireNonNull(prt);
