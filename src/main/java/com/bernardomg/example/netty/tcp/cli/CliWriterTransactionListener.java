@@ -76,13 +76,13 @@ public final class CliWriterTransactionListener implements TransactionListener {
 
     @Override
     public final void onStart() {
-        writer.printf("Starting server and listening to port %d", port);
+        writer.printf("Starting connection and listening to port %d", port);
         writer.println();
     }
 
     @Override
     public final void onStop() {
-        writer.println("Stopping server");
+        writer.println("Stopping connection");
     }
 
 }
