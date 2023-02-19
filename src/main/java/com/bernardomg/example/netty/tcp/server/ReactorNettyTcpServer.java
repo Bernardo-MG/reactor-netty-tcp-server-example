@@ -117,7 +117,6 @@ public final class ReactorNettyTcpServer implements Server {
      */
     private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
         final Publisher<Void>             reqPublisher;
-        final Publisher<? extends String> dataStream;
 
         log.debug("Setting up request handler");
 
@@ -125,20 +124,22 @@ public final class ReactorNettyTcpServer implements Server {
         reqPublisher = request.receive()
             .doOnNext(next -> {
                 final String message;
+                final Publisher<? extends String> dataStream;
 
                 message = next.toString(CharsetUtil.UTF_8);
                 listener.onReceive(message);
+
+                dataStream = Mono.just(messageForClient)
+                    .flux()
+                    .doOnNext(s -> listener.onSend(s));
+                
+                response.sendString(dataStream).then().subscribe().dispose();
             })
             .doOnError(this::handleError)
             .then();
 
-        dataStream = Mono.just(messageForClient)
-            .flux()
-            .doOnNext(s -> listener.onSend(s));
-
         // Sends the response
-        return response.sendString(dataStream)
-            .then(reqPublisher);
+        return reqPublisher;
     }
 
 }
