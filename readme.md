@@ -34,7 +34,7 @@ This project is part of a series of examples:
 
 ## Features
 
-- Netty TCP server
+- Reactor Netty TCP server
 - Command Line Client
 
 ## References
