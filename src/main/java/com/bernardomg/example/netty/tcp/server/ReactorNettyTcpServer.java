@@ -131,10 +131,16 @@ public final class ReactorNettyTcpServer implements Server {
                 final String                  message;
                 final Publisher<? extends String> dataStream;
 
+                log.debug("Handling request");
+
                 // Sends the request to the listener
                 message = next.toString(CharsetUtil.UTF_8);
+
+                log.debug("Received request: {}", message);
                 listener.onReceive(message);
 
+                log.debug("Sending response: {}", messageForClient);
+                
                 // Response data
                 dataStream = Mono.just(messageForClient)
                     .flux()
