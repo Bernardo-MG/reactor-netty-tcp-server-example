@@ -39,7 +39,7 @@ import reactor.netty.tcp.TcpServer;
 /**
  * Netty based TCP server.
  *
- * @author bernardo.martinezg
+ * @author Bernardo Mart&iacute;nez Garrido
  *
  */
 @Slf4j
@@ -48,21 +48,21 @@ public final class ReactorNettyTcpServer implements Server {
     /**
      * Server listener. Extension hook which allows reacting to the server events.
      */
-    private final ServerListener listener;
-
-    /**
-     * Port which the server will listen to.
-     */
-    private final Integer        port;
+    private final TransactionListener listener;
 
     /**
      * Response to send after a request.
      */
-    private final String         messageForClient;
+    private final String              messageForClient;
 
-    private DisposableServer     server;
+    /**
+     * Port which the server will listen to.
+     */
+    private final Integer             port;
 
-    public ReactorNettyTcpServer(final Integer prt, final String resp, final ServerListener lst) {
+    private DisposableServer          server;
+
+    public ReactorNettyTcpServer(final Integer prt, final String resp, final TransactionListener lst) {
         super();
 
         port = Objects.requireNonNull(prt);
@@ -100,33 +100,55 @@ public final class ReactorNettyTcpServer implements Server {
         log.trace("Stopped server");
     }
 
+    /**
+     * Error handler which sends errors to the log.
+     *
+     * @param ex
+     *            exception to log
+     */
     private final void handleError(final Throwable ex) {
         log.error(ex.getLocalizedMessage(), ex);
     }
 
     /**
-     * Request event internal listener. Will receive any request sent by the client.
+     * Request event listener. Will receive any request sent by the client, and then send back the response.
      * <p>
-     * Will send the context info to the listener and send a response to the client.
+     * Aditionally it will send the data from both the request and response to the listener.
      *
      * @param request
-     *            request flux
+     *            request channel
      * @param response
-     *            response flux
+     *            response channel
      * @return a publisher which handles the request
      */
     private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
-        final Publisher<Void> reqPublisher;
+        log.debug("Setting up request handler");
 
-        // Publisher which sends the request to the listener
-        reqPublisher = request.receive()
-            .doOnNext(next -> listener.onTransaction(next.toString(CharsetUtil.UTF_8), messageForClient, true))
+        // Receives the request and then sends a response
+        return request.receive()
+            // Handle request
+            .doOnNext(next -> {
+                final String                  message;
+                final Publisher<? extends String> dataStream;
+
+                // Sends the request to the listener
+                message = next.toString(CharsetUtil.UTF_8);
+                listener.onReceive(message);
+
+                // Response data
+                dataStream = Mono.just(messageForClient)
+                    .flux()
+                    // Will send the response to the listener
+                    .doOnNext(s -> listener.onSend(s));
+
+                // Send response
+                response.sendString(dataStream)
+                    .then()
+                    .subscribe()
+                    .dispose();
+            })
             .doOnError(this::handleError)
             .then();
-
-        // Sends the response
-        return response.sendString(Mono.just(messageForClient))
-            .then(reqPublisher);
     }
 
 }

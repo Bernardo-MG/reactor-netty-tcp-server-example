@@ -19,7 +19,7 @@
 
    <groupId>com.bernardomg.example</groupId>
    <artifactId>reactor-netty-tcp-server-example</artifactId>
-   <version>1.0.0</version>
+   <version>1.0.1</version>
    <packaging>jar</packaging>
 
    <name>Netty TCP Server Example</name>
@@ -117,6 +117,7 @@
       <!-- ============================================== -->
       <!-- =========== DEPENDENCIES VERSIONS ============ -->
       <!-- ============================================== -->
+      <bernardomg.cli.manifestVersion>1.0.0</bernardomg.cli.manifestVersion>
       <junit.jupiter.version>5.9.2</junit.jupiter.version>
       <netty.version>4.1.89.Final</netty.version>
       <log4j.version>2.19.0</log4j.version>
@@ -174,11 +175,20 @@
    </dependencyManagement>
 
    <dependencies>
+      <!-- ============================================== -->
+      <!-- ==================== CLI ===================== -->
+      <!-- ============================================== -->
       <dependency>
          <!-- picocli -->
          <groupId>info.picocli</groupId>
          <artifactId>picocli</artifactId>
          <version>${picocli.version}</version>
+      </dependency>
+      <dependency>
+         <!-- Manifest version provider -->
+         <groupId>com.bernardomg.cli</groupId>
+         <artifactId>picocli-manifest-version-provider</artifactId>
+         <version>${bernardomg.cli.manifestVersion}</version>
       </dependency>
       <!-- ============================================== -->
       <!-- ================== LOMBOK ==================== -->
@@ -330,6 +340,9 @@
                      <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                            <mainClass>${main.path}</mainClass>
+                           <manifestEntries>
+                              <Multi-Release>true</Multi-Release>
+                           </manifestEntries>
                         </transformer>
                      </transformers>
                      <filters>
