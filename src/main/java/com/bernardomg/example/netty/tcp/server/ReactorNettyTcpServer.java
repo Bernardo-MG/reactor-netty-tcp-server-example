@@ -113,7 +113,7 @@ public final class ReactorNettyTcpServer implements Server {
     /**
      * Request event listener. Will receive any request sent by the client, and then send back the response.
      * <p>
-     * Aditionally it will send the data from both the request and response to the listener.
+     * Additionally it will send the data from both the request and response to the listener.
      *
      * @param request
      *            request channel
