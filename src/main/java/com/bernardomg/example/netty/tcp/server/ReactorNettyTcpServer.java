@@ -139,7 +139,7 @@ public final class ReactorNettyTcpServer implements Server {
                 dataStream = Mono.just(messageForClient)
                     .flux()
                     // Will send the response to the listener
-                    .doOnNext(s -> listener.onSend(s));
+                    .doOnNext(listener::onSend);
 
                 // Send response
                 response.sendString(dataStream)
