@@ -33,7 +33,6 @@ import com.bernardomg.example.netty.tcp.server.channel.EventLoggerChannelHandler
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
-import reactor.netty.ByteBufFlux;
 import reactor.netty.DisposableServer;
 import reactor.netty.NettyInbound;
 import reactor.netty.NettyOutbound;
@@ -134,22 +133,10 @@ public final class ReactorNettyTcpServer implements Server {
      * @return a publisher which handles the request
      */
     private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
-        final ByteBufFlux reqStream;
         log.debug("Setting up request handler");
 
-        reqStream = request.receive()
-            .retain();
-
-        reqStream.doOnCancel(() -> log.debug("Cancelled request"));
-        reqStream.doOnComplete(() -> log.debug("Completed request"));
-        reqStream.doOnTerminate(() -> log.debug("Terminated request"));
-        reqStream.doOnSubscribe((s) -> log.debug("Subscribed request"));
-
-        reqStream.count()
-            .doOnNext(c -> log.debug("Values received: {}", c));
-
         // Receives the request and then sends a response
-        return reqStream
+        return request.receive()
             // Handle request
             .doOnNext(next -> {
                 final String                  message;
