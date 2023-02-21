@@ -77,6 +77,12 @@ public final class ReactorNettyTcpServer implements Server {
         listener.onStart();
 
         server = TcpServer.create()
+            // Logs events
+            .doOnChannelInit((o, c, a) -> log.debug("Channel init"))
+            .doOnConnection(c -> log.debug("Channel connection"))
+            .doOnBind(c -> log.debug("Channel bind"))
+            .doOnBound(c -> log.debug("Channel bound"))
+            .doOnUnbound(c -> log.debug("Channel unbound"))
             // Adds request handler
             .handle(this::handleRequest)
             // Binds to port
@@ -140,7 +146,7 @@ public final class ReactorNettyTcpServer implements Server {
                 listener.onReceive(message);
 
                 log.debug("Sending response: {}", messageForClient);
-                
+
                 // Response data
                 dataStream = Mono.just(messageForClient)
                     .flux()
