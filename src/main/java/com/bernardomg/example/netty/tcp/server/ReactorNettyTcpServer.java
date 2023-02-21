@@ -76,6 +76,8 @@ public final class ReactorNettyTcpServer implements Server {
     public final void start() {
         log.trace("Starting server");
 
+        log.debug("Binding to port {}", port);
+
         listener.onStart();
 
         server = TcpServer.create()
