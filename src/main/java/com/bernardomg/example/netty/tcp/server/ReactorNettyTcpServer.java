@@ -139,10 +139,9 @@ public final class ReactorNettyTcpServer implements Server {
 
         // Receives the request and then sends a response
         return request.receive()
-            // Handle request
-            .flatMap(next -> {
-                final String                  message;
-                final Publisher<? extends String> dataStream;
+            // Log request
+            .doOnNext(next -> {
+                final String message;
 
                 log.debug("Handling request");
 
@@ -151,9 +150,12 @@ public final class ReactorNettyTcpServer implements Server {
 
                 log.debug("Received request: {}", message);
                 listener.onReceive(message);
+            })
+            // Handle request
+            .flatMap(next -> {
+                final Publisher<? extends String> dataStream;
 
                 log.debug("Sending response: {}", messageForClient);
-
                 // Response data
                 dataStream = Mono.just(messageForClient)
                     .flux()
