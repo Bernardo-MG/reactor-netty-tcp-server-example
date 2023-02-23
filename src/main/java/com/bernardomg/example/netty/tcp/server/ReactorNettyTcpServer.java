@@ -140,7 +140,7 @@ public final class ReactorNettyTcpServer implements Server {
         // Receives the request and then sends a response
         return request.receive()
             // Handle request
-            .doOnNext(next -> {
+            .flatMap(next -> {
                 final String                  message;
                 final Publisher<? extends String> dataStream;
 
@@ -161,11 +161,10 @@ public final class ReactorNettyTcpServer implements Server {
                     .doOnNext(listener::onSend);
 
                 // Send response
-                response.sendString(dataStream)
-                    .then()
-                    .subscribe()
-                    .dispose();
+                return response.sendString(dataStream)
+                    .then();
             })
+            // Error handling
             .doOnError(this::handleError)
             .then();
     }
