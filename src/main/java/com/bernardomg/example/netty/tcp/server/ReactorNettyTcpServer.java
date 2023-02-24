@@ -62,8 +62,21 @@ public final class ReactorNettyTcpServer implements Server {
      */
     private final Integer             port;
 
+    /**
+     * Server for closing the connection.
+     */
     private DisposableServer          server;
 
+    /**
+     * Constructs a server for the given port. The transaction listener will react to events when calling the server.
+     *
+     * @param prt
+     *            port to listen for
+     * @param resp
+     *            response to return
+     * @param lst
+     *            transaction listener
+     */
     public ReactorNettyTcpServer(final Integer prt, final String resp, final TransactionListener lst) {
         super();
 

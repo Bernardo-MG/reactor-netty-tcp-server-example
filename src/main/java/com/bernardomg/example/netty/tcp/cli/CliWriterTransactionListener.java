@@ -47,11 +47,11 @@ public final class CliWriterTransactionListener implements TransactionListener {
      */
     private final PrintWriter writer;
 
-    public CliWriterTransactionListener(final Integer prt, final PrintWriter writ) {
+    public CliWriterTransactionListener(final Integer prt, final PrintWriter wrt) {
         super();
 
         port = Objects.requireNonNull(prt);
-        writer = Objects.requireNonNull(writ);
+        writer = Objects.requireNonNull(wrt);
     }
 
     @Override
