@@ -18,5 +18,13 @@
                 Using generic version provider.
             </action>
         </release>
+        <release version="1.0.2" date="2023-02-24" description="Chained flows">
+            <action dev="bmg" type="update">
+                Chained flows.
+            </action>
+            <action dev="bmg" type="add">
+                Added logs.
+            </action>
+        </release>
     </body>
 </document>

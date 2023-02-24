@@ -19,7 +19,7 @@
 
    <groupId>com.bernardomg.example</groupId>
    <artifactId>reactor-netty-tcp-server-example</artifactId>
-   <version>1.0.1</version>
+   <version>1.0.2</version>
    <packaging>jar</packaging>
 
    <name>Netty TCP Server Example</name>
@@ -113,13 +113,12 @@
       <!-- ============================================== -->
       <!-- =============== MANIFEST DATA ================ -->
       <!-- ============================================== -->
-      <manifest.name>com/bernardomg/example/netty/tcp</manifest.name>
+      <manifest.name>com/bernardomg/example/netty/reactor/tcp/server</manifest.name>
       <!-- ============================================== -->
       <!-- =========== DEPENDENCIES VERSIONS ============ -->
       <!-- ============================================== -->
       <bernardomg.cli.manifestVersion>1.0.0</bernardomg.cli.manifestVersion>
       <junit.jupiter.version>5.9.2</junit.jupiter.version>
-      <netty.version>4.1.89.Final</netty.version>
       <log4j.version>2.19.0</log4j.version>
       <lombok.version>1.18.26</lombok.version>
       <picocli.version>4.7.1</picocli.version>
@@ -212,14 +211,6 @@
          <!-- Reactor Netty HTTP -->
          <groupId>io.projectreactor.netty</groupId>
          <artifactId>reactor-netty-http</artifactId>
-      </dependency>
-      <!-- ============================================== -->
-      <!-- =================== NETTY ==================== -->
-      <!-- ============================================== -->
-      <dependency>
-         <groupId>io.netty</groupId>
-         <artifactId>netty-all</artifactId>
-         <version>${netty.version}</version>
       </dependency>
       <!-- ============================================== -->
       <!-- ================== LOGGERS =================== -->
@@ -383,18 +374,6 @@
    <reporting>
       <plugins>
          <plugin>
-            <!-- Javadoc -->
-            <!-- Generates the javadocs -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-               <sourceFileExcludes>
-                  <!-- Excludes generated code -->
-                  <exclude>**/generated/**/*</exclude>
-               </sourceFileExcludes>
-            </configuration>
-         </plugin>
-         <plugin>
             <!-- PMD -->
             <!-- Checks that the code complies with a series of code quality rules -->
             <groupId>org.apache.maven.plugins</groupId>
@@ -404,10 +383,6 @@
                   <!-- The customized rules file -->
                   <ruleset>${project.basedir}/src/config/pmd/pmd-rules.xml</ruleset>
                </rulesets>
-               <excludes>
-                  <!-- Excludes generated code -->
-                  <exclude>**/generated/**/*</exclude>
-               </excludes>
             </configuration>
          </plugin>
       </plugins>

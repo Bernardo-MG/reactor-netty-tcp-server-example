@@ -30,7 +30,7 @@ import java.util.Objects;
 import com.bernardomg.example.netty.tcp.server.TransactionListener;
 
 /**
- * Server listener which will write the context of each step into the CLI console.
+ * Transaction listener which will write the context of each step into the CLI console.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
@@ -47,11 +47,11 @@ public final class CliWriterTransactionListener implements TransactionListener {
      */
     private final PrintWriter writer;
 
-    public CliWriterTransactionListener(final Integer prt, final PrintWriter writ) {
+    public CliWriterTransactionListener(final Integer prt, final PrintWriter wrt) {
         super();
 
         port = Objects.requireNonNull(prt);
-        writer = Objects.requireNonNull(writ);
+        writer = Objects.requireNonNull(wrt);
     }
 
     @Override

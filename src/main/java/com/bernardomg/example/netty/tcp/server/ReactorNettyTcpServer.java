@@ -28,6 +28,8 @@ import java.util.Objects;
 
 import org.reactivestreams.Publisher;
 
+import com.bernardomg.example.netty.tcp.server.channel.EventLoggerChannelHandler;
+
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -60,8 +62,21 @@ public final class ReactorNettyTcpServer implements Server {
      */
     private final Integer             port;
 
+    /**
+     * Server for closing the connection.
+     */
     private DisposableServer          server;
 
+    /**
+     * Constructs a server for the given port. The transaction listener will react to events when calling the server.
+     *
+     * @param prt
+     *            port to listen for
+     * @param resp
+     *            response to return
+     * @param lst
+     *            transaction listener
+     */
     public ReactorNettyTcpServer(final Integer prt, final String resp, final TransactionListener lst) {
         super();
 
@@ -74,9 +89,20 @@ public final class ReactorNettyTcpServer implements Server {
     public final void start() {
         log.trace("Starting server");
 
+        log.debug("Binding to port {}", port);
+
         listener.onStart();
 
         server = TcpServer.create()
+            // Logs events
+            .doOnChannelInit((o, c, a) -> log.debug("Channel init"))
+            .doOnConnection(c -> {
+                log.debug("Channel connection");
+                c.addHandlerLast(new EventLoggerChannelHandler());
+            })
+            .doOnBind(c -> log.debug("Channel bind"))
+            .doOnBound(c -> log.debug("Channel bound"))
+            .doOnUnbound(c -> log.debug("Channel unbound"))
             // Adds request handler
             .handle(this::handleRequest)
             // Binds to port
@@ -113,7 +139,7 @@ public final class ReactorNettyTcpServer implements Server {
     /**
      * Request event listener. Will receive any request sent by the client, and then send back the response.
      * <p>
-     * Aditionally it will send the data from both the request and response to the listener.
+     * Additionally it will send the data from both the request and response to the listener.
      *
      * @param request
      *            request channel
@@ -126,27 +152,34 @@ public final class ReactorNettyTcpServer implements Server {
 
         // Receives the request and then sends a response
         return request.receive()
-            // Handle request
+            // Log request
             .doOnNext(next -> {
-                final String                  message;
-                final Publisher<? extends String> dataStream;
+                final String message;
+
+                log.debug("Handling request");
 
                 // Sends the request to the listener
                 message = next.toString(CharsetUtil.UTF_8);
-                listener.onReceive(message);
 
+                log.debug("Received request: {}", message);
+                listener.onReceive(message);
+            })
+            // Handle request
+            .flatMap(next -> {
+                final Publisher<? extends String> dataStream;
+
+                log.debug("Sending response: {}", messageForClient);
                 // Response data
                 dataStream = Mono.just(messageForClient)
                     .flux()
                     // Will send the response to the listener
-                    .doOnNext(s -> listener.onSend(s));
+                    .doOnNext(listener::onSend);
 
                 // Send response
-                response.sendString(dataStream)
-                    .then()
-                    .subscribe()
-                    .dispose();
+                return response.sendString(dataStream)
+                    .then();
             })
+            // Error handling
             .doOnError(this::handleError)
             .then();
     }
