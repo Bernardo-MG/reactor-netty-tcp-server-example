@@ -68,6 +68,11 @@ public final class ReactorNettyTcpServer implements Server {
     private DisposableServer          server;
 
     /**
+     * Wiretap flag.
+     */
+    private Boolean                   wiretap = false;
+
+    /**
      * Constructs a server for the given port. The transaction listener will react to events when calling the server.
      *
      * @param prt
@@ -83,6 +88,10 @@ public final class ReactorNettyTcpServer implements Server {
         port = Objects.requireNonNull(prt);
         messageForClient = Objects.requireNonNull(resp);
         listener = Objects.requireNonNull(lst);
+    }
+
+    public final void setWiretap(final Boolean wtap) {
+        wiretap = wtap;
     }
 
     @Override
@@ -103,6 +112,8 @@ public final class ReactorNettyTcpServer implements Server {
             .doOnBind(c -> log.debug("Channel bind"))
             .doOnBound(c -> log.debug("Channel bound"))
             .doOnUnbound(c -> log.debug("Channel unbound"))
+            // Wiretap
+            .wiretap(wiretap)
             // Adds request handler
             .handle(this::handleRequest)
             // Binds to port

@@ -31,7 +31,6 @@ import java.nio.charset.Charset;
 import com.bernardomg.example.netty.tcp.cli.CliWriterTransactionListener;
 import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import com.bernardomg.example.netty.tcp.server.ReactorNettyTcpServer;
-import com.bernardomg.example.netty.tcp.server.Server;
 import com.bernardomg.example.netty.tcp.server.TransactionListener;
 
 import picocli.CommandLine.Command;
@@ -76,6 +75,13 @@ public final class StartServerCommand implements Runnable {
     private Boolean     verbose;
 
     /**
+     * Response wait time. This is the number of seconds to wait for responses.
+     */
+    @Option(names = { "--wiretap" }, paramLabel = "flag", description = "Enable wiretap logging",
+            defaultValue = "false")
+    private Boolean     wiretap;
+
+    /**
      * Default constructor.
      */
     public StartServerCommand() {
@@ -84,9 +90,9 @@ public final class StartServerCommand implements Runnable {
 
     @Override
     public final void run() {
-        final PrintWriter         writer;
-        final Server              server;
-        final TransactionListener listener;
+        final PrintWriter           writer;
+        final ReactorNettyTcpServer server;
+        final TransactionListener   listener;
 
         if (verbose) {
             // Prints to console
@@ -100,6 +106,7 @@ public final class StartServerCommand implements Runnable {
         // Create server
         listener = new CliWriterTransactionListener(port, writer);
         server = new ReactorNettyTcpServer(port, response, listener);
+        server.setWiretap(wiretap);
 
         // close server
         server.start();
