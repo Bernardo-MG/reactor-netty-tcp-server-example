@@ -175,7 +175,7 @@ public final class ReactorNettyTcpServer implements Server {
                 log.debug("Received request: {}", message);
                 listener.onReceive(message);
             })
-            // Handle request
+            // Handle response
             .flatMap(next -> {
                 final Publisher<? extends String> dataStream;
 
