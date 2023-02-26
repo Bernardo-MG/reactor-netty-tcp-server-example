@@ -52,13 +52,13 @@ public final class StartServerCommand implements Runnable {
     /**
      * Port to listen.
      */
-    @Parameters(index = "0", description = "Port to listen", paramLabel = "PORT")
+    @Parameters(index = "0", description = "Port to listen.", paramLabel = "PORT")
     private Integer     port;
 
     /**
      * Server response.
      */
-    @Parameters(index = "1", description = "Server response", paramLabel = "RESP", defaultValue = "Acknowledged")
+    @Parameters(index = "1", description = "Server response.", paramLabel = "RESP", defaultValue = "Acknowledged")
     private String      response;
 
     /**
@@ -70,14 +70,14 @@ public final class StartServerCommand implements Runnable {
     /**
      * Verbose mode. If active prints info into the console. Active by default.
      */
-    @Option(names = { "--verbose" }, paramLabel = "VERBOSE", description = "print information to console",
+    @Option(names = { "--verbose" }, paramLabel = "VERBOSE", description = "print information to console.",
             defaultValue = "true")
     private Boolean     verbose;
 
     /**
      * Response wait time. This is the number of seconds to wait for responses.
      */
-    @Option(names = { "--wiretap" }, paramLabel = "flag", description = "Enable wiretap logging",
+    @Option(names = { "--wiretap" }, paramLabel = "flag", description = "Enable wiretap logging.",
             defaultValue = "false")
     private Boolean     wiretap;
 
