@@ -34,6 +34,7 @@ import com.bernardomg.example.netty.tcp.server.ReactorNettyTcpServer;
 import com.bernardomg.example.netty.tcp.server.TransactionListener;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Help;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -70,8 +71,8 @@ public final class StartServerCommand implements Runnable {
     /**
      * Verbose mode. If active prints info into the console. Active by default.
      */
-    @Option(names = { "--verbose" }, paramLabel = "VERBOSE", description = "print information to console.",
-            defaultValue = "true")
+    @Option(names = { "--verbose" }, paramLabel = "flag", description = "Print information to console.",
+            defaultValue = "true", showDefaultValue = Help.Visibility.ALWAYS)
     private Boolean     verbose;
 
     /**
