@@ -26,15 +26,10 @@ package com.bernardomg.example.netty.tcp.server;
 
 import java.util.Objects;
 
-import org.reactivestreams.Publisher;
-
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 import reactor.netty.DisposableServer;
-import reactor.netty.NettyInbound;
-import reactor.netty.NettyOutbound;
 import reactor.netty.tcp.TcpServer;
 
 /**
@@ -103,7 +98,7 @@ public final class ReactorNettyTcpServer implements Server {
             // Wiretap
             .wiretap(wiretap)
             // Adds request handler
-            .handle(this::handleRequest)
+            .handle(new ListenAndAnswerTransactionHandler(messageForClient, listener))
             // Binds to port
             .port(port)
             .bindNow();
@@ -123,76 +118,6 @@ public final class ReactorNettyTcpServer implements Server {
         server.dispose();
 
         log.trace("Stopped server");
-    }
-
-    /**
-     * Returns a data stream as a {@code Publisher} with the received text.
-     *
-     * @param message
-     *            text for the {@code Publisher}
-     * @return {@code Publisher} with the text
-     */
-    private final Publisher<? extends String> buildStream(final String message) {
-        return Mono.just(message)
-            .flux()
-            // Will send the response to the listener
-            .doOnNext(r -> {
-                log.debug("Sending request: {}", r);
-
-                // Sends the request to the listener
-                listener.onSend(r);
-            });
-    }
-
-    /**
-     * Error handler which sends errors to the log.
-     *
-     * @param ex
-     *            exception to log
-     */
-    private final void handleError(final Throwable ex) {
-        log.error(ex.getLocalizedMessage(), ex);
-    }
-
-    /**
-     * Request event listener. Will receive any request sent by the client, and then send back the response.
-     * <p>
-     * Additionally it will send the data from both the request and response to the listener.
-     *
-     * @param request
-     *            request channel
-     * @param response
-     *            response channel
-     * @return a publisher which handles the request
-     */
-    private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
-        log.debug("Setting up request handler");
-
-        // Receives the request and then sends a response
-        return request.receive()
-            .asString()
-            // Log request
-            .doOnNext(next -> {
-                log.debug("Received request: {}", next);
-
-                // Sends the request to the listener
-                listener.onReceive(next);
-            })
-            // Handle response
-            .flatMap(next -> {
-                final Publisher<? extends String> dataStream;
-
-                log.debug("Sending response: {}", messageForClient);
-                // Response data
-                dataStream = buildStream(messageForClient);
-
-                // Send response
-                return response.sendString(dataStream)
-                    .then();
-            })
-            // Error handling
-            .doOnError(this::handleError)
-            .then();
     }
 
 }
