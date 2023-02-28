@@ -50,7 +50,7 @@ import reactor.netty.tcp.TcpServer;
 public final class ReactorNettyTcpServer implements Server {
 
     /**
-     * Server listener. Extension hook which allows reacting to the server events.
+     * Transaction listener. Extension hook which allows reacting to the transaction events.
      */
     private final TransactionListener listener;
 
