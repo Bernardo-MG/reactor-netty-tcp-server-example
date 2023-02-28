@@ -31,6 +31,8 @@ import org.reactivestreams.Publisher;
 import com.bernardomg.example.netty.tcp.server.channel.EventLoggerChannelHandler;
 
 import io.netty.util.CharsetUtil;
+import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.netty.DisposableServer;
@@ -70,6 +72,8 @@ public final class ReactorNettyTcpServer implements Server {
     /**
      * Wiretap flag.
      */
+    @Setter
+    @NonNull
     private Boolean                   wiretap = false;
 
     /**
@@ -88,10 +92,6 @@ public final class ReactorNettyTcpServer implements Server {
         port = Objects.requireNonNull(prt);
         messageForClient = Objects.requireNonNull(resp);
         listener = Objects.requireNonNull(lst);
-    }
-
-    public final void setWiretap(final Boolean wtap) {
-        wiretap = wtap;
     }
 
     @Override
