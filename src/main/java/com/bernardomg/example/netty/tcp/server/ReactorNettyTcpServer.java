@@ -30,7 +30,6 @@ import org.reactivestreams.Publisher;
 
 import com.bernardomg.example.netty.tcp.server.channel.EventLoggerChannelHandler;
 
-import io.netty.util.CharsetUtil;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -104,14 +103,10 @@ public final class ReactorNettyTcpServer implements Server {
 
         server = TcpServer.create()
             // Logs events
-            .doOnChannelInit((o, c, a) -> log.debug("Channel init"))
             .doOnConnection(c -> {
                 log.debug("Channel connection");
                 c.addHandlerLast(new EventLoggerChannelHandler());
             })
-            .doOnBind(c -> log.debug("Channel bind"))
-            .doOnBound(c -> log.debug("Channel bound"))
-            .doOnUnbound(c -> log.debug("Channel unbound"))
             // Wiretap
             .wiretap(wiretap)
             // Adds request handler
@@ -135,6 +130,18 @@ public final class ReactorNettyTcpServer implements Server {
         server.dispose();
 
         log.trace("Stopped server");
+    }
+
+    private final Publisher<? extends String> buildStream(final String message) {
+        return Mono.just(message)
+            .flux()
+            // Will send the response to the listener
+            .doOnNext(r -> {
+                log.debug("Sending request: {}", r);
+
+                // Sends the request to the listener
+                listener.onSend(r);
+            });
     }
 
     /**
@@ -163,17 +170,13 @@ public final class ReactorNettyTcpServer implements Server {
 
         // Receives the request and then sends a response
         return request.receive()
+            .asString()
             // Log request
             .doOnNext(next -> {
-                final String message;
-
-                log.debug("Handling request");
+                log.debug("Received request: {}", next);
 
                 // Sends the request to the listener
-                message = next.toString(CharsetUtil.UTF_8);
-
-                log.debug("Received request: {}", message);
-                listener.onReceive(message);
+                listener.onReceive(next);
             })
             // Handle response
             .flatMap(next -> {
@@ -181,10 +184,7 @@ public final class ReactorNettyTcpServer implements Server {
 
                 log.debug("Sending response: {}", messageForClient);
                 // Response data
-                dataStream = Mono.just(messageForClient)
-                    .flux()
-                    // Will send the response to the listener
-                    .doOnNext(listener::onSend);
+                dataStream = buildStream(messageForClient);
 
                 // Send response
                 return response.sendString(dataStream)
