@@ -28,8 +28,6 @@ import java.util.Objects;
 
 import org.reactivestreams.Publisher;
 
-import com.bernardomg.example.netty.tcp.server.channel.EventLoggerChannelHandler;
-
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -102,11 +100,6 @@ public final class ReactorNettyTcpServer implements Server {
         listener.onStart();
 
         server = TcpServer.create()
-            // Logs events
-            .doOnConnection(c -> {
-                log.debug("Channel connection");
-                c.addHandlerLast(new EventLoggerChannelHandler());
-            })
             // Wiretap
             .wiretap(wiretap)
             // Adds request handler
