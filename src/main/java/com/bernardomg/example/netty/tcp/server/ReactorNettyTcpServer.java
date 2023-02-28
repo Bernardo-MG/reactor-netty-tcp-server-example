@@ -125,6 +125,13 @@ public final class ReactorNettyTcpServer implements Server {
         log.trace("Stopped server");
     }
 
+    /**
+     * Returns a data stream as a {@code Publisher} with the received text.
+     *
+     * @param message
+     *            text for the {@code Publisher}
+     * @return {@code Publisher} with the text
+     */
     private final Publisher<? extends String> buildStream(final String message) {
         return Mono.just(message)
             .flux()
