@@ -25,11 +25,16 @@
 package com.bernardomg.example.netty.tcp.server;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
+
+import org.reactivestreams.Publisher;
 
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import reactor.netty.DisposableServer;
+import reactor.netty.NettyInbound;
+import reactor.netty.NettyOutbound;
 import reactor.netty.tcp.TcpServer;
 
 /**
@@ -42,31 +47,31 @@ import reactor.netty.tcp.TcpServer;
 public final class ReactorNettyTcpServer implements Server {
 
     /**
-     * Transaction listener. Extension hook which allows reacting to the transaction events.
+     * IO handler for the server.
      */
-    private final TransactionListener listener;
+    private final BiFunction<NettyInbound, NettyOutbound, Publisher<Void>> handler;
 
     /**
-     * Response to send after a request.
+     * Transaction listener. Extension hook which allows reacting to the transaction events.
      */
-    private final String              messageForClient;
+    private final TransactionListener                                      listener;
 
     /**
      * Port which the server will listen to.
      */
-    private final Integer             port;
+    private final Integer                                                  port;
 
     /**
      * Server for closing the connection.
      */
-    private DisposableServer          server;
+    private DisposableServer                                               server;
 
     /**
      * Wiretap flag.
      */
     @Setter
     @NonNull
-    private Boolean                   wiretap = false;
+    private Boolean                                                        wiretap = false;
 
     /**
      * Constructs a server for the given port. The transaction listener will react to events when calling the server.
@@ -82,8 +87,9 @@ public final class ReactorNettyTcpServer implements Server {
         super();
 
         port = Objects.requireNonNull(prt);
-        messageForClient = Objects.requireNonNull(resp);
         listener = Objects.requireNonNull(lst);
+
+        handler = new ListenAndAnswerIoHandler(resp, listener);
     }
 
     @Override
@@ -98,7 +104,7 @@ public final class ReactorNettyTcpServer implements Server {
             // Wiretap
             .wiretap(wiretap)
             // Adds request handler
-            .handle(new ListenAndAnswerTransactionHandler(messageForClient, listener))
+            .handle(handler)
             // Binds to port
             .port(port)
             .bindNow();

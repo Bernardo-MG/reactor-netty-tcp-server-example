@@ -35,14 +35,13 @@ import reactor.netty.NettyInbound;
 import reactor.netty.NettyOutbound;
 
 /**
- * Transaction handler which sends all messages to the listener, and also answers back with a predefined message.
+ * I/O handler which sends all messages to the listener, and also answers back with a predefined message.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
 @Slf4j
-public final class ListenAndAnswerTransactionHandler
-        implements BiFunction<NettyInbound, NettyOutbound, Publisher<Void>> {
+public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, NettyOutbound, Publisher<Void>> {
 
     /**
      * Transaction listener. Reacts to events during the request.
@@ -54,7 +53,7 @@ public final class ListenAndAnswerTransactionHandler
      */
     private final String              messageForClient;
 
-    public ListenAndAnswerTransactionHandler(final String msg, final TransactionListener lst) {
+    public ListenAndAnswerIoHandler(final String msg, final TransactionListener lst) {
         super();
 
         messageForClient = Objects.requireNonNull(msg);
