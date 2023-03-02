@@ -74,7 +74,7 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
             })
             // Handle response
             .flatMap(next -> {
-                final Publisher<? extends String> dataStream;
+                final Publisher<String> dataStream;
 
                 log.debug("Sending response: {}", messageForClient);
                 // Response data
@@ -96,7 +96,7 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
      *            text for the {@code Publisher}
      * @return {@code Publisher} with the text
      */
-    private final Publisher<? extends String> buildStream(final String message) {
+    private final Publisher<String> buildStream(final String message) {
         return Mono.just(message)
             .flux()
             .doOnNext(listener::onSend);
