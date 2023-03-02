@@ -30,6 +30,7 @@ import java.util.function.BiFunction;
 import org.reactivestreams.Publisher;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.NettyInbound;
 import reactor.netty.NettyOutbound;
@@ -62,8 +63,8 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
 
     @Override
     public Publisher<Void> apply(final NettyInbound request, final NettyOutbound response) {
-        // Receives the request and then sends a response
-        return request.receive()
+
+        return Flux.merge(request.receive()
             .asString()
             // Log request
             .doOnNext(next -> {
@@ -71,21 +72,18 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
 
                 // Sends the request to the listener
                 listener.onReceive(next);
-            })
-            // Handle response
-            .flatMap(next -> {
-                final Publisher<String> dataStream;
+            }), Mono.just(messageForClient)
+                .flatMap(next -> {
+                    final Publisher<String> dataStream;
 
-                log.debug("Sending response: {}", messageForClient);
-                // Response data
-                dataStream = buildStream(messageForClient);
+                    log.debug("Sending response: {}", next);
+                    // Response data
+                    dataStream = buildStream(next);
 
-                // Send response
-                return response.sendString(dataStream)
-                    .then();
-            })
-            // Error handling
-            .doOnError(this::handleError)
+                    // Send response
+                    return response.sendString(dataStream)
+                        .then();
+                }))
             .then();
     }
 
@@ -100,16 +98,6 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
         return Mono.just(message)
             .flux()
             .doOnNext(listener::onSend);
-    }
-
-    /**
-     * Error handler which sends errors to the log.
-     *
-     * @param ex
-     *            exception to log
-     */
-    private final void handleError(final Throwable ex) {
-        log.error(ex.getLocalizedMessage(), ex);
     }
 
 }
