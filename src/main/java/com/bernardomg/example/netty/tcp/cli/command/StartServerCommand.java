@@ -109,8 +109,15 @@ public final class StartServerCommand implements Runnable {
         server = new ReactorNettyTcpServer(port, response, listener);
         server.setWiretap(wiretap);
 
-        // close server
+        // Start server
         server.start();
+        server.listen();
+
+        // Stop server
+        server.stop();
+
+        // Close writer
+        writer.close();
     }
 
 }

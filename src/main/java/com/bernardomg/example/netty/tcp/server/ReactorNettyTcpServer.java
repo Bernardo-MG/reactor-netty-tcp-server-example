@@ -93,6 +93,16 @@ public final class ReactorNettyTcpServer implements Server {
     }
 
     @Override
+    public final void listen() {
+        log.trace("Starting server listening");
+
+        server.onDispose()
+            .block();
+
+        log.trace("Stopped server listening");
+    }
+
+    @Override
     public final void start() {
         log.trace("Starting server");
 
@@ -108,9 +118,6 @@ public final class ReactorNettyTcpServer implements Server {
             // Binds to port
             .port(port)
             .bindNow();
-
-        server.onDispose()
-            .block();
 
         log.trace("Started server");
     }

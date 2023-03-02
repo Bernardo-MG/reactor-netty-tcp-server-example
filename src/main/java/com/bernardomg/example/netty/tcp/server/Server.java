@@ -33,6 +33,11 @@ package com.bernardomg.example.netty.tcp.server;
 public interface Server {
 
     /**
+     * Keeps the server waiting for requests.
+     */
+    public void listen();
+
+    /**
      * Starts the server.
      */
     public void start();
