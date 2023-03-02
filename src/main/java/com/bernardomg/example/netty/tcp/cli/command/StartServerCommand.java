@@ -28,6 +28,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+
 import com.bernardomg.example.netty.tcp.cli.CliWriterTransactionListener;
 import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import com.bernardomg.example.netty.tcp.server.ReactorNettyTcpServer;
@@ -49,6 +52,12 @@ import picocli.CommandLine.Spec;
 @Command(name = "start", description = "Starts a TCP server", mixinStandardHelpOptions = true,
         versionProvider = ManifestVersionProvider.class)
 public final class StartServerCommand implements Runnable {
+
+    /**
+     * Debug flag. Shows debug logs.
+     */
+    @Option(names = { "--debug" }, paramLabel = "flag", description = "Enable debug logs.", defaultValue = "false")
+    private Boolean     debug;
 
     /**
      * Port to listen.
@@ -76,13 +85,6 @@ public final class StartServerCommand implements Runnable {
     private Boolean     verbose;
 
     /**
-     * Response wait time. This is the number of seconds to wait for responses.
-     */
-    @Option(names = { "--wiretap" }, paramLabel = "flag", description = "Enable wiretap logging.",
-            defaultValue = "false")
-    private Boolean     wiretap;
-
-    /**
      * Default constructor.
      */
     public StartServerCommand() {
@@ -94,6 +96,10 @@ public final class StartServerCommand implements Runnable {
         final PrintWriter           writer;
         final ReactorNettyTcpServer server;
         final TransactionListener   listener;
+
+        if (debug) {
+            activateDebugLog();
+        }
 
         if (verbose) {
             // Prints to console
@@ -107,7 +113,7 @@ public final class StartServerCommand implements Runnable {
         // Create server
         listener = new CliWriterTransactionListener(port, writer);
         server = new ReactorNettyTcpServer(port, response, listener);
-        server.setWiretap(wiretap);
+        server.setWiretap(debug);
 
         // Start server
         server.start();
@@ -118,6 +124,14 @@ public final class StartServerCommand implements Runnable {
 
         // Close writer
         writer.close();
+    }
+
+    /**
+     * Activates debug logs for the application.
+     */
+    private final void activateDebugLog() {
+        Configurator.setLevel("com.bernardomg.example", Level.DEBUG);
+        Configurator.setLevel("reactor.netty.tcp", Level.DEBUG);
     }
 
 }
