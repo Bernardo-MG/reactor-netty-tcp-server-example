@@ -64,15 +64,19 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
     @Override
     public Publisher<Void> apply(final NettyInbound request, final NettyOutbound response) {
 
-        return Flux.merge(request.receive()
-            .asString()
-            // Log request
-            .doOnNext(next -> {
-                log.debug("Received request: {}", next);
+        return Flux.merge(
+            // Receive request
+            request.receive()
+                .asString()
+                // Log request
+                .doOnNext(next -> {
+                    log.debug("Received request: {}", next);
 
-                // Sends the request to the listener
-                listener.onReceive(next);
-            }), Mono.just(messageForClient)
+                    // Sends the request to the listener
+                    listener.onReceive(next);
+                }),
+            // Send response
+            Mono.just(messageForClient)
                 .flatMap(next -> {
                     final Publisher<String> dataStream;
 
