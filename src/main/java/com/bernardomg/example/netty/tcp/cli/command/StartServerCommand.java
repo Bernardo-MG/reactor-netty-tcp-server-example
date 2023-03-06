@@ -28,13 +28,16 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+
 import com.bernardomg.example.netty.tcp.cli.CliWriterTransactionListener;
 import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import com.bernardomg.example.netty.tcp.server.ReactorNettyTcpServer;
-import com.bernardomg.example.netty.tcp.server.Server;
 import com.bernardomg.example.netty.tcp.server.TransactionListener;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Help;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -51,15 +54,21 @@ import picocli.CommandLine.Spec;
 public final class StartServerCommand implements Runnable {
 
     /**
+     * Debug flag. Shows debug logs.
+     */
+    @Option(names = { "--debug" }, paramLabel = "flag", description = "Enable debug logs.", defaultValue = "false")
+    private Boolean     debug;
+
+    /**
      * Port to listen.
      */
-    @Parameters(index = "0", description = "Port to listen", paramLabel = "PORT")
+    @Parameters(index = "0", description = "Port to listen.", paramLabel = "PORT")
     private Integer     port;
 
     /**
      * Server response.
      */
-    @Parameters(index = "1", description = "Server response", paramLabel = "RESP", defaultValue = "Acknowledged")
+    @Parameters(index = "1", description = "Server response.", paramLabel = "RESP", defaultValue = "Acknowledged")
     private String      response;
 
     /**
@@ -71,8 +80,8 @@ public final class StartServerCommand implements Runnable {
     /**
      * Verbose mode. If active prints info into the console. Active by default.
      */
-    @Option(names = { "--verbose" }, paramLabel = "VERBOSE", description = "print information to console",
-            defaultValue = "true")
+    @Option(names = { "--verbose" }, paramLabel = "flag", description = "Print information to console.",
+            defaultValue = "true", showDefaultValue = Help.Visibility.ALWAYS)
     private Boolean     verbose;
 
     /**
@@ -84,9 +93,13 @@ public final class StartServerCommand implements Runnable {
 
     @Override
     public final void run() {
-        final PrintWriter         writer;
-        final Server              server;
-        final TransactionListener listener;
+        final PrintWriter           writer;
+        final ReactorNettyTcpServer server;
+        final TransactionListener   listener;
+
+        if (debug) {
+            activateDebugLog();
+        }
 
         if (verbose) {
             // Prints to console
@@ -100,9 +113,25 @@ public final class StartServerCommand implements Runnable {
         // Create server
         listener = new CliWriterTransactionListener(port, writer);
         server = new ReactorNettyTcpServer(port, response, listener);
+        server.setWiretap(debug);
 
-        // close server
+        // Start server
         server.start();
+        server.listen();
+
+        // Stop server
+        server.stop();
+
+        // Close writer
+        writer.close();
+    }
+
+    /**
+     * Activates debug logs for the application.
+     */
+    private final void activateDebugLog() {
+        Configurator.setLevel("com.bernardomg.example", Level.DEBUG);
+        Configurator.setLevel("reactor.netty.tcp", Level.DEBUG);
     }
 
 }

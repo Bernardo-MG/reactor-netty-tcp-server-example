@@ -25,14 +25,13 @@
 package com.bernardomg.example.netty.tcp.server;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 import org.reactivestreams.Publisher;
 
-import com.bernardomg.example.netty.tcp.server.channel.EventLoggerChannelHandler;
-
-import io.netty.util.CharsetUtil;
+import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 import reactor.netty.DisposableServer;
 import reactor.netty.NettyInbound;
 import reactor.netty.NettyOutbound;
@@ -48,24 +47,31 @@ import reactor.netty.tcp.TcpServer;
 public final class ReactorNettyTcpServer implements Server {
 
     /**
-     * Server listener. Extension hook which allows reacting to the server events.
+     * IO handler for the server.
      */
-    private final TransactionListener listener;
+    private final BiFunction<NettyInbound, NettyOutbound, Publisher<Void>> handler;
 
     /**
-     * Response to send after a request.
+     * Transaction listener. Extension hook which allows reacting to the transaction events.
      */
-    private final String              messageForClient;
+    private final TransactionListener                                      listener;
 
     /**
      * Port which the server will listen to.
      */
-    private final Integer             port;
+    private final Integer                                                  port;
 
     /**
      * Server for closing the connection.
      */
-    private DisposableServer          server;
+    private DisposableServer                                               server;
+
+    /**
+     * Wiretap flag.
+     */
+    @Setter
+    @NonNull
+    private Boolean                                                        wiretap = false;
 
     /**
      * Constructs a server for the given port. The transaction listener will react to events when calling the server.
@@ -81,8 +87,19 @@ public final class ReactorNettyTcpServer implements Server {
         super();
 
         port = Objects.requireNonNull(prt);
-        messageForClient = Objects.requireNonNull(resp);
         listener = Objects.requireNonNull(lst);
+
+        handler = new ListenAndAnswerIoHandler(resp, listener);
+    }
+
+    @Override
+    public final void listen() {
+        log.trace("Starting server listening");
+
+        server.onDispose()
+            .block();
+
+        log.trace("Stopped server listening");
     }
 
     @Override
@@ -94,23 +111,13 @@ public final class ReactorNettyTcpServer implements Server {
         listener.onStart();
 
         server = TcpServer.create()
-            // Logs events
-            .doOnChannelInit((o, c, a) -> log.debug("Channel init"))
-            .doOnConnection(c -> {
-                log.debug("Channel connection");
-                c.addHandlerLast(new EventLoggerChannelHandler());
-            })
-            .doOnBind(c -> log.debug("Channel bind"))
-            .doOnBound(c -> log.debug("Channel bound"))
-            .doOnUnbound(c -> log.debug("Channel unbound"))
+            // Wiretap
+            .wiretap(wiretap)
             // Adds request handler
-            .handle(this::handleRequest)
+            .handle(handler)
             // Binds to port
             .port(port)
             .bindNow();
-
-        server.onDispose()
-            .block();
 
         log.trace("Started server");
     }
@@ -124,64 +131,6 @@ public final class ReactorNettyTcpServer implements Server {
         server.dispose();
 
         log.trace("Stopped server");
-    }
-
-    /**
-     * Error handler which sends errors to the log.
-     *
-     * @param ex
-     *            exception to log
-     */
-    private final void handleError(final Throwable ex) {
-        log.error(ex.getLocalizedMessage(), ex);
-    }
-
-    /**
-     * Request event listener. Will receive any request sent by the client, and then send back the response.
-     * <p>
-     * Additionally it will send the data from both the request and response to the listener.
-     *
-     * @param request
-     *            request channel
-     * @param response
-     *            response channel
-     * @return a publisher which handles the request
-     */
-    private final Publisher<Void> handleRequest(final NettyInbound request, final NettyOutbound response) {
-        log.debug("Setting up request handler");
-
-        // Receives the request and then sends a response
-        return request.receive()
-            // Log request
-            .doOnNext(next -> {
-                final String message;
-
-                log.debug("Handling request");
-
-                // Sends the request to the listener
-                message = next.toString(CharsetUtil.UTF_8);
-
-                log.debug("Received request: {}", message);
-                listener.onReceive(message);
-            })
-            // Handle request
-            .flatMap(next -> {
-                final Publisher<? extends String> dataStream;
-
-                log.debug("Sending response: {}", messageForClient);
-                // Response data
-                dataStream = Mono.just(messageForClient)
-                    .flux()
-                    // Will send the response to the listener
-                    .doOnNext(listener::onSend);
-
-                // Send response
-                return response.sendString(dataStream)
-                    .then();
-            })
-            // Error handling
-            .doOnError(this::handleError)
-            .then();
     }
 
 }
