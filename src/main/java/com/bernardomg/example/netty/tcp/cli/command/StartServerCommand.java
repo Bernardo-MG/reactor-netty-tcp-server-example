@@ -66,12 +66,6 @@ public final class StartServerCommand implements Runnable {
     private Integer     port;
 
     /**
-     * Server response.
-     */
-    @Parameters(index = "1", description = "Server response.", paramLabel = "RESP", defaultValue = "Acknowledged")
-    private String      response;
-
-    /**
      * Command specification. Used to get the line output.
      */
     @Spec
@@ -112,7 +106,7 @@ public final class StartServerCommand implements Runnable {
 
         // Create server
         listener = new CliWriterTransactionListener(port, writer);
-        server = new ReactorNettyTcpServer(port, response, listener);
+        server = new ReactorNettyTcpServer(port, listener);
         server.setWiretap(debug);
 
         // Start server

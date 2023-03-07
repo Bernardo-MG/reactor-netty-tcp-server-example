@@ -74,6 +74,20 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
 
                     // Sends the request to the listener
                     listener.onReceive(next);
+                })
+                .flatMap(next -> {
+                    final Publisher<String> dataStream;
+                    final String    ack;
+
+                    ack = String.format("Received %s", next);
+
+                    log.debug("Sending response: {}", ack);
+                    // Response data
+                    dataStream = buildStream(ack);
+
+                    // Send response
+                    return response.sendString(dataStream)
+                        .then();
                 }),
             // Send response
             Mono.just(messageForClient)
