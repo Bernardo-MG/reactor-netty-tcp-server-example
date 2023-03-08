@@ -63,7 +63,6 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
 
     @Override
     public Publisher<Void> apply(final NettyInbound request, final NettyOutbound response) {
-
         return Flux.merge(
             // Receive request
             request.receive()
