@@ -9,7 +9,7 @@ Once built, the JAR will be located at target/server.jar. These examples will us
 To start the server and listen to port 8080:
 
 ```
-java -jar target/server.jar start 8080
+java -jar target/server.jar start --port=8080
 ```
 
 ## Help
@@ -31,7 +31,7 @@ java -jar target/server.jar start -h
 All the commands have a debug option, which prints logs on console:
 
 ```
-java -jar target/server.jar start 8080 --debug
+java -jar target/server.jar start --port=8080 --debug
 ```
 
 This includes details on all the messages sent or received.

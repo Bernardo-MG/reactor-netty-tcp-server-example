@@ -40,7 +40,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Help;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
@@ -62,14 +61,8 @@ public final class StartServerCommand implements Runnable {
     /**
      * Port to listen.
      */
-    @Parameters(index = "0", description = "Port to listen.", paramLabel = "PORT")
+    @Option(names = { "-p", "--port" }, paramLabel = "port", description = "Port to listen.", required = true)
     private Integer     port;
-
-    /**
-     * Server response.
-     */
-    @Parameters(index = "1", description = "Server response.", paramLabel = "RESP", defaultValue = "Acknowledged")
-    private String      response;
 
     /**
      * Command specification. Used to get the line output.
@@ -112,7 +105,7 @@ public final class StartServerCommand implements Runnable {
 
         // Create server
         listener = new CliWriterTransactionListener(port, writer);
-        server = new ReactorNettyTcpServer(port, response, listener);
+        server = new ReactorNettyTcpServer(port, listener);
         server.setWiretap(debug);
 
         // Start server
