@@ -56,22 +56,30 @@ public final class CliWriterTransactionListener implements TransactionListener {
 
     @Override
     public final void onReceive(final String message) {
+        printHorizontalLine("RECEIVED MESSAGE - START");
+
         if (message.isEmpty()) {
             writer.println("Received no message");
         } else {
             writer.printf("Received message: %s", message);
             writer.println();
         }
+
+        printHorizontalLine("RECEIVED MESSAGE - END");
     }
 
     @Override
     public final void onSend(final String message) {
+        printHorizontalLine("SENT ANSWER - START");
+
         if (message.isEmpty()) {
             writer.println("Sent no message");
         } else {
             writer.printf("Sent message: %s", message);
             writer.println();
         }
+
+        printHorizontalLine("SENT ANSWER - END");
     }
 
     @Override
@@ -83,6 +91,12 @@ public final class CliWriterTransactionListener implements TransactionListener {
     @Override
     public final void onStop() {
         writer.println("Stopping connection");
+    }
+
+    private final void printHorizontalLine(final String title) {
+        writer.println();
+        writer.println(String.format("-------------------- %s --------------------", title));
+        writer.println();
     }
 
 }
