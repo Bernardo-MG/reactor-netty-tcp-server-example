@@ -70,7 +70,7 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
                 log.debug("Received request: {}", next);
 
                 // Sends the request to the listener
-                listener.onReceive(next);
+                listener.onRequest(next);
             })
             .concatMap(next -> {
                 final Publisher<String> dataStream;
@@ -78,7 +78,7 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
                 // Send response
                 dataStream = Mono.just(responseMessage)
                     .flux()
-                    .doOnNext(listener::onSend);
+                    .doOnNext(listener::onResponse);
 
                 return response.sendString(dataStream)
                     .then();

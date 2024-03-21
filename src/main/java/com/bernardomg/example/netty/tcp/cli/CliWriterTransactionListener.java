@@ -55,31 +55,31 @@ public final class CliWriterTransactionListener implements TransactionListener {
     }
 
     @Override
-    public final void onReceive(final String message) {
-        printHorizontalLine("RECEIVED MESSAGE - START");
+    public final void onRequest(final String message) {
+        printHorizontalLine("RECEIVED REQUEST - START");
 
         if (message.isEmpty()) {
-            writer.println("Received no message");
+            writer.println("Received no request");
         } else {
-            writer.printf("Received message: %s", message);
+            writer.printf("Received request: %s", message);
             writer.println();
         }
 
-        printHorizontalLine("RECEIVED MESSAGE - END");
+        printHorizontalLine("RECEIVED REQUEST - END");
     }
 
     @Override
-    public final void onSend(final String message) {
-        printHorizontalLine("SENT ANSWER - START");
+    public final void onResponse(final String message) {
+        printHorizontalLine("SENT RESPONSE - START");
 
         if (message.isEmpty()) {
-            writer.println("Sent no message");
+            writer.println("Sent no response");
         } else {
-            writer.printf("Sent message: %s", message);
+            writer.printf("Sent response: %s", message);
             writer.println();
         }
 
-        printHorizontalLine("SENT ANSWER - END");
+        printHorizontalLine("SENT RESPONSE - END");
     }
 
     @Override
