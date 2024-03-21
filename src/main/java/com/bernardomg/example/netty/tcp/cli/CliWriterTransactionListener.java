@@ -95,7 +95,7 @@ public final class CliWriterTransactionListener implements TransactionListener {
 
     /**
      * Prints a horizontal line with the received header in the middle.
-     * 
+     *
      * @param header
      *            header to print in the line
      */

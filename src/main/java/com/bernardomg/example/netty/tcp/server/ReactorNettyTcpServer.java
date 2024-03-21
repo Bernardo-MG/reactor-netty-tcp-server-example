@@ -78,16 +78,18 @@ public final class ReactorNettyTcpServer implements Server {
      *
      * @param prt
      *            port to listen for
+     * @param response
+     *            response for the request
      * @param lst
      *            transaction listener
      */
-    public ReactorNettyTcpServer(final Integer prt, final TransactionListener lst) {
+    public ReactorNettyTcpServer(final Integer prt, final String response, final TransactionListener lst) {
         super();
 
         port = Objects.requireNonNull(prt);
         listener = Objects.requireNonNull(lst);
 
-        handler = new ListenAndAnswerIoHandler("Connection acknowledged", listener);
+        handler = new ListenAndAnswerIoHandler(response, listener);
     }
 
     @Override
