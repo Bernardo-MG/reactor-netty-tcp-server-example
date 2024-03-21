@@ -93,9 +93,15 @@ public final class CliWriterTransactionListener implements TransactionListener {
         writer.println("Stopping connection");
     }
 
-    private final void printHorizontalLine(final String title) {
+    /**
+     * Prints a horizontal line with the received header in the middle.
+     * 
+     * @param header
+     *            header to print in the line
+     */
+    private final void printHorizontalLine(final String header) {
         writer.println();
-        writer.println(String.format("-------------------- %s --------------------", title));
+        writer.println(String.format("-------------------- %s --------------------", header));
         writer.println();
     }
 
