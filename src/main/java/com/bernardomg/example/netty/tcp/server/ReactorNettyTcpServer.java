@@ -38,7 +38,7 @@ import reactor.netty.NettyOutbound;
 import reactor.netty.tcp.TcpServer;
 
 /**
- * Netty based TCP server.
+ * Reactor Netty based TCP server.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
