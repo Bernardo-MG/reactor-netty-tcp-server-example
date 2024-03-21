@@ -30,7 +30,6 @@ import java.util.function.BiFunction;
 import org.reactivestreams.Publisher;
 
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.NettyInbound;
 import reactor.netty.NettyOutbound;
@@ -52,69 +51,39 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
     /**
      * Response to send after a request.
      */
-    private final String              messageForClient;
+    private final String              responseMessage;
 
     public ListenAndAnswerIoHandler(final String msg, final TransactionListener lst) {
         super();
 
-        messageForClient = Objects.requireNonNull(msg);
+        responseMessage = Objects.requireNonNull(msg);
         listener = Objects.requireNonNull(lst);
     }
 
     @Override
-    public Publisher<Void> apply(final NettyInbound request, final NettyOutbound response) {
-        return Flux.merge(
-            // Receive request
-            request.receive()
-                .asString()
-                // Log request
-                .doOnNext(next -> {
-                    log.debug("Received request: {}", next);
+    public final Publisher<Void> apply(final NettyInbound request, final NettyOutbound response) {
+        return request.receive()
+            .asString()
+            // Log request
+            .doOnNext(next -> {
+                // Receive request
+                log.debug("Received request: {}", next);
 
-                    // Sends the request to the listener
-                    listener.onReceive(next);
-                })
-                .concatMap(next -> {
-                    final Publisher<String> dataStream;
-                    final String    ack;
+                // Sends the request to the listener
+                listener.onReceive(next);
+            })
+            .concatMap(next -> {
+                final Publisher<String> dataStream;
 
-                    ack = String.format("Received %s", next);
+                // Send response
+                dataStream = Mono.just(responseMessage)
+                    .flux()
+                    .doOnNext(listener::onSend);
 
-                    log.debug("Sending response: {}", ack);
-                    // Response data
-                    dataStream = buildStream(ack);
-
-                    // Send response
-                    return response.sendString(dataStream)
-                        .then();
-                }),
-            // Send response
-            Mono.just(messageForClient)
-                .map(next -> {
-                    final Publisher<String> dataStream;
-
-                    log.debug("Sending response: {}", next);
-                    // Response data
-                    dataStream = buildStream(next);
-
-                    // Send response
-                    return response.sendString(dataStream)
-                        .then();
-                }))
+                return response.sendString(dataStream)
+                    .then();
+            })
             .then();
-    }
-
-    /**
-     * Returns a data stream as a {@code Publisher} with the received text.
-     *
-     * @param message
-     *            text for the {@code Publisher}
-     * @return {@code Publisher} with the text
-     */
-    private final Publisher<String> buildStream(final String message) {
-        return Mono.just(message)
-            .flux()
-            .doOnNext(listener::onSend);
     }
 
 }

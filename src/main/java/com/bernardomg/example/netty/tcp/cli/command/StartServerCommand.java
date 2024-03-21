@@ -65,6 +65,13 @@ public final class StartServerCommand implements Runnable {
     private Integer     port;
 
     /**
+     * Response to return.
+     */
+    @Option(names = { "-r", "--response" }, paramLabel = "response",
+            description = "Response to send back after receiving a request.", defaultValue = "Acknowledged")
+    private String      response;
+
+    /**
      * Command specification. Used to get the line output.
      */
     @Spec
@@ -105,7 +112,7 @@ public final class StartServerCommand implements Runnable {
 
         // Create server
         listener = new CliWriterTransactionListener(port, writer);
-        server = new ReactorNettyTcpServer(port, listener);
+        server = new ReactorNettyTcpServer(port, response, listener);
         server.setWiretap(debug);
 
         // Start server
