@@ -12,7 +12,7 @@
    <custom>
       <skinConfig>
          <keywords>Maven, Java, library</keywords>
-         <descriptionUrl>Check the documentation for Netty TCP Server Example</descriptionUrl>
+         <descriptionUrl>Check the documentation for Reactor Netty TCP Server Example</descriptionUrl>
          <twitterSite>@bmg</twitterSite>
          <topNav>
             <menu>Documentation</menu>
