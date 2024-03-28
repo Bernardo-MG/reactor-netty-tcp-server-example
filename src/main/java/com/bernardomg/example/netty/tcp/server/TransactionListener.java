@@ -33,20 +33,20 @@ package com.bernardomg.example.netty.tcp.server;
 public interface TransactionListener {
 
     /**
-     * Reacts to a message being received.
+     * Reacts to a request message being received by the server from the client.
      *
      * @param message
-     *            message received
+     *            request message received
      */
-    public void onReceive(final String message);
+    public void onRequest(final String message);
 
     /**
-     * Reacts to a message being sent.
+     * Reacts to a response message being sent by the server to the client.
      *
      * @param message
-     *            message sent
+     *            response message sent
      */
-    public void onSend(final String message);
+    public void onResponse(final String message);
 
     /**
      * Reacts to the start event.
