@@ -31,7 +31,7 @@ import java.nio.charset.Charset;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 
-import com.bernardomg.example.netty.tcp.cli.CliWriterTransactionListener;
+import com.bernardomg.example.netty.tcp.cli.TransactionPrinterListener;
 import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import com.bernardomg.example.netty.tcp.server.ReactorNettyTcpServer;
 import com.bernardomg.example.netty.tcp.server.Server;
@@ -112,7 +112,7 @@ public final class StartServerCommand implements Runnable {
         }
 
         // Create server
-        listener = new CliWriterTransactionListener(port, writer);
+        listener = new TransactionPrinterListener(port, writer);
         server = new ReactorNettyTcpServer(port, response, listener, debug);
 
         // Start server
