@@ -25,7 +25,6 @@
 package com.bernardomg.example.netty.tcp.server;
 
 import java.util.Objects;
-import java.util.function.BiFunction;
 
 import org.reactivestreams.Publisher;
 
@@ -41,7 +40,7 @@ import reactor.netty.NettyOutbound;
  *
  */
 @Slf4j
-public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, NettyOutbound, Publisher<Void>> {
+public final class ListenAndAnswerIoHandler implements IoHandler {
 
     /**
      * Transaction listener. Reacts to events during the request.
@@ -61,7 +60,7 @@ public final class ListenAndAnswerIoHandler implements BiFunction<NettyInbound, 
     }
 
     @Override
-    public final Publisher<Void> apply(final NettyInbound request, final NettyOutbound response) {
+    public final Publisher<Void> handle(final NettyInbound request, final NettyOutbound response) {
         return request.receive()
             .asString()
             // Log request

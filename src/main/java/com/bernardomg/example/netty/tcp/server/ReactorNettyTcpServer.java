@@ -25,14 +25,9 @@
 package com.bernardomg.example.netty.tcp.server;
 
 import java.util.Objects;
-import java.util.function.BiFunction;
-
-import org.reactivestreams.Publisher;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.netty.DisposableServer;
-import reactor.netty.NettyInbound;
-import reactor.netty.NettyOutbound;
 import reactor.netty.tcp.TcpServer;
 
 /**
@@ -47,41 +42,41 @@ public final class ReactorNettyTcpServer implements Server {
     /**
      * IO handler for the server.
      */
-    private final BiFunction<NettyInbound, NettyOutbound, Publisher<Void>> handler;
+    private final IoHandler           handler;
 
     /**
      * Transaction listener. Extension hook which allows reacting to the transaction events.
      */
-    private final TransactionListener                                      listener;
+    private final TransactionListener listener;
 
     /**
      * Port which the server will listen to.
      */
-    private final Integer                                                  port;
+    private final Integer             port;
 
     /**
      * Server for closing the connection.
      */
-    private DisposableServer                                               server;
+    private DisposableServer          server;
 
     /**
      * Wiretap flag.
      */
-    private final boolean                                                  wiretap;
+    private final boolean             wiretap;
 
     /**
      * Constructs a server for the given port. The transaction listener will react to events when calling the server.
      *
      * @param prt
      *            port to listen for
-     * @param response
-     *            response for the request
      * @param lst
      *            transaction listener
+     * @param ioh
+     *            I/O handler
      * @param wtap
      *            wiretap flag
      */
-    public ReactorNettyTcpServer(final Integer prt, final String response, final TransactionListener lst,
+    public ReactorNettyTcpServer(final Integer prt, final TransactionListener lst, final IoHandler ioh,
             final boolean wtap) {
         super();
 
@@ -89,7 +84,7 @@ public final class ReactorNettyTcpServer implements Server {
         listener = Objects.requireNonNull(lst);
         wiretap = Objects.requireNonNull(wtap);
 
-        handler = new ListenAndAnswerIoHandler(response, listener);
+        handler = Objects.requireNonNull(ioh);
     }
 
     @Override
@@ -114,7 +109,7 @@ public final class ReactorNettyTcpServer implements Server {
             // Wiretap
             .wiretap(wiretap)
             // Adds request handler
-            .handle(handler)
+            .handle(handler::handle)
             // Binds to port
             .port(port)
             .bindNow();

@@ -33,8 +33,10 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 import com.bernardomg.example.netty.tcp.cli.TransactionPrinterListener;
 import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
+import com.bernardomg.example.netty.tcp.server.IoHandler;
 import com.bernardomg.example.netty.tcp.server.ReactorNettyTcpServer;
 import com.bernardomg.example.netty.tcp.server.Server;
+import com.bernardomg.example.netty.tcp.server.SinkIoHandler;
 import com.bernardomg.example.netty.tcp.server.TransactionListener;
 
 import picocli.CommandLine.Command;
@@ -44,14 +46,14 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
 /**
- * Start server command.
+ * Start server sink. This creates a server which listens for requests, but responds nothing.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
-@Command(name = "start", description = "Starts a TCP server", mixinStandardHelpOptions = true,
+@Command(name = "sink", description = "Starts a sink TCP server", mixinStandardHelpOptions = true,
         versionProvider = ManifestVersionProvider.class)
-public final class StartServerCommand implements Runnable {
+public final class StartServerSinkCommand implements Runnable {
 
     /**
      * Debug flag. Shows debug logs.
@@ -64,13 +66,6 @@ public final class StartServerCommand implements Runnable {
      */
     @Option(names = { "-p", "--port" }, paramLabel = "port", description = "Port to listen.", required = true)
     private Integer     port;
-
-    /**
-     * Response to return.
-     */
-    @Option(names = { "-r", "--response" }, paramLabel = "response",
-            description = "Response to send back after receiving a request.", defaultValue = "Acknowledged")
-    private String      response;
 
     /**
      * Command specification. Used to get the line output.
@@ -88,8 +83,16 @@ public final class StartServerCommand implements Runnable {
     /**
      * Default constructor.
      */
-    public StartServerCommand() {
+    public StartServerSinkCommand() {
         super();
+    }
+
+    /**
+     * Activates debug logs for the application.
+     */
+    private final void activateDebugLog() {
+        Configurator.setLevel("com.bernardomg.example", Level.DEBUG);
+        Configurator.setLevel("reactor.netty.tcp", Level.DEBUG);
     }
 
     @Override
@@ -97,6 +100,7 @@ public final class StartServerCommand implements Runnable {
         final PrintWriter         writer;
         final Server              server;
         final TransactionListener listener;
+        final IoHandler           handler;
 
         if (debug) {
             activateDebugLog();
@@ -113,7 +117,8 @@ public final class StartServerCommand implements Runnable {
 
         // Create server
         listener = new TransactionPrinterListener(port, writer);
-        server = new ReactorNettyTcpServer(port, response, listener, debug);
+        handler = new SinkIoHandler(listener);
+        server = new ReactorNettyTcpServer(port, listener, handler, debug);
 
         // Start server
         server.start();
@@ -124,14 +129,6 @@ public final class StartServerCommand implements Runnable {
 
         // Close writer
         writer.close();
-    }
-
-    /**
-     * Activates debug logs for the application.
-     */
-    private final void activateDebugLog() {
-        Configurator.setLevel("com.bernardomg.example", Level.DEBUG);
-        Configurator.setLevel("reactor.netty.tcp", Level.DEBUG);
     }
 
 }

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  * <p>
- * Copyright (c) 2023 the original author or authors.
+ * Copyright (c) 2024 the original author or authors.
  * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,30 +22,27 @@
  * SOFTWARE.
  */
 
-package com.bernardomg.example.netty.tcp.cli;
+package com.bernardomg.example.netty.tcp.server;
 
-import com.bernardomg.example.netty.tcp.cli.command.StartServerSinkCommand;
-import com.bernardomg.example.netty.tcp.cli.command.StartServerWithResponseCommand;
-import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
+import org.reactivestreams.Publisher;
 
-import picocli.CommandLine.Command;
+import reactor.netty.NettyInbound;
+import reactor.netty.NettyOutbound;
 
 /**
- * TCP server menu.
- *
- * @author Bernardo Mart&iacute;nez Garrido
- *
+ * Handler for I/O operations.
  */
-@Command(description = "Reactor TCP server",
-        subcommands = { StartServerWithResponseCommand.class, StartServerSinkCommand.class },
-        mixinStandardHelpOptions = true, versionProvider = ManifestVersionProvider.class)
-public class TcpServerMenu {
+public interface IoHandler {
 
     /**
-     * Default constructor.
+     * Handle the operation.
+     *
+     * @param request
+     *            TCP request
+     * @param response
+     *            TCP response
+     * @return {@code Publisher} prepared for the I/O operation
      */
-    public TcpServerMenu() {
-        super();
-    }
+    public Publisher<Void> handle(final NettyInbound request, final NettyOutbound response);
 
 }
