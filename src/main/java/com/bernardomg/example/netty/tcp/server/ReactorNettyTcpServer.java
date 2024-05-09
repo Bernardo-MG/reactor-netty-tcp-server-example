@@ -25,14 +25,9 @@
 package com.bernardomg.example.netty.tcp.server;
 
 import java.util.Objects;
-import java.util.function.BiFunction;
-
-import org.reactivestreams.Publisher;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.netty.DisposableServer;
-import reactor.netty.NettyInbound;
-import reactor.netty.NettyOutbound;
 import reactor.netty.tcp.TcpServer;
 
 /**
@@ -47,7 +42,7 @@ public final class ReactorNettyTcpServer implements Server {
     /**
      * IO handler for the server.
      */
-    private final BiFunction<NettyInbound, NettyOutbound, Publisher<Void>> handler;
+    private final IoHandler handler;
 
     /**
      * Transaction listener. Extension hook which allows reacting to the transaction events.
@@ -114,7 +109,7 @@ public final class ReactorNettyTcpServer implements Server {
             // Wiretap
             .wiretap(wiretap)
             // Adds request handler
-            .handle(handler)
+            .handle(handler::handle)
             // Binds to port
             .port(port)
             .bindNow();
