@@ -34,13 +34,15 @@ import reactor.netty.NettyOutbound;
  */
 public interface IoHandler {
 
-	/**
-	 * Handle the operation.
-	 *
-	 * @param request  TCP request
-	 * @param response TCP response
-	 * @return {@code Publisher} prepared for the I/O operation
-	 */
-	public Publisher<Void> handle(final NettyInbound request, final NettyOutbound response);
+    /**
+     * Handle the operation.
+     *
+     * @param request
+     *            TCP request
+     * @param response
+     *            TCP response
+     * @return {@code Publisher} prepared for the I/O operation
+     */
+    public Publisher<Void> handle(final NettyInbound request, final NettyOutbound response);
 
 }

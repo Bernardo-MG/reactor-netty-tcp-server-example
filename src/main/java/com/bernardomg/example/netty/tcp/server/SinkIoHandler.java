@@ -22,30 +22,49 @@
  * SOFTWARE.
  */
 
-package com.bernardomg.example.netty.tcp.cli;
+package com.bernardomg.example.netty.tcp.server;
 
-import com.bernardomg.example.netty.tcp.cli.command.StartServerSinkCommand;
-import com.bernardomg.example.netty.tcp.cli.command.StartServerWithResponseCommand;
-import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
+import java.util.Objects;
 
-import picocli.CommandLine.Command;
+import org.reactivestreams.Publisher;
+
+import lombok.extern.slf4j.Slf4j;
+import reactor.netty.NettyInbound;
+import reactor.netty.NettyOutbound;
 
 /**
- * TCP server menu.
+ * I/O handler which sends all received messages to the listener, but responds nothing.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
-@Command(description = "Reactor TCP server",
-        subcommands = { StartServerWithResponseCommand.class, StartServerSinkCommand.class },
-        mixinStandardHelpOptions = true, versionProvider = ManifestVersionProvider.class)
-public class TcpServerMenu {
+@Slf4j
+public final class SinkIoHandler implements IoHandler {
 
     /**
-     * Default constructor.
+     * Transaction listener. Reacts to events during the request.
      */
-    public TcpServerMenu() {
+    private final TransactionListener listener;
+
+    public SinkIoHandler(final TransactionListener lst) {
         super();
+
+        listener = Objects.requireNonNull(lst);
+    }
+
+    @Override
+    public final Publisher<Void> handle(final NettyInbound request, final NettyOutbound response) {
+        return request.receive()
+            .asString()
+            // Log request
+            .doOnNext(next -> {
+                // Receive request
+                log.debug("Received request: {}", next);
+
+                // Sends the request to the listener
+                listener.onRequest(next);
+            })
+            .then();
     }
 
 }
