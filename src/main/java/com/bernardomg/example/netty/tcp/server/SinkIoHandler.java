@@ -29,33 +29,26 @@ import java.util.Objects;
 import org.reactivestreams.Publisher;
 
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 import reactor.netty.NettyInbound;
 import reactor.netty.NettyOutbound;
 
 /**
- * I/O handler which sends all messages to the listener, and also answers back with a predefined message.
+ * I/O handler which sends all received messages to the listener, but responds nothing.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
 @Slf4j
-public final class ListenAndAnswerIoHandler implements IoHandler {
+public final class SinkIoHandler implements IoHandler {
 
     /**
      * Transaction listener. Reacts to events during the request.
      */
     private final TransactionListener listener;
 
-    /**
-     * Response to send after a request.
-     */
-    private final String              responseMessage;
-
-    public ListenAndAnswerIoHandler(final String msg, final TransactionListener lst) {
+    public SinkIoHandler(final TransactionListener lst) {
         super();
 
-        responseMessage = Objects.requireNonNull(msg);
         listener = Objects.requireNonNull(lst);
     }
 
@@ -70,17 +63,6 @@ public final class ListenAndAnswerIoHandler implements IoHandler {
 
                 // Sends the request to the listener
                 listener.onRequest(next);
-            })
-            .concatMap(next -> {
-                final Publisher<String> dataStream;
-
-                // Send response
-                dataStream = Mono.just(responseMessage)
-                    .flux()
-                    .doOnNext(listener::onResponse);
-
-                return response.sendString(dataStream)
-                    .then();
             })
             .then();
     }
